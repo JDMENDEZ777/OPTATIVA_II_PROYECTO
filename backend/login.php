@@ -1,11 +1,5 @@
 <?php
 session_start();
-
-// Si ya está logueado, redirigir
-if(isset($_SESSION["usuario"])){
-    header("Location: dashboard.php");
-    exit();
-}
 ?>
 
 <!DOCTYPE html>
@@ -13,7 +7,8 @@ if(isset($_SESSION["usuario"])){
 <head>
     <meta charset="UTF-8">
     <title>Login - Plataforma Académica</title>
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="../frontend/login.css">
+    <link rel="shortcut icon" href="../img/logofet.png" type="image/x-icon">
 </head>
 <body>
 
@@ -59,58 +54,3 @@ if(isset($_SESSION["usuario"])){
 
 </body>
 </html>
-
-<?php
-session_start();
-require_once("../database/conexion.php");
-
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-
-    $username = trim($_POST["username"]);
-    $password = trim($_POST["password"]);
-
-    // Validaciones obligatorias del taller
-
-    if(empty($username)){
-        $_SESSION["mensaje"] = "El usuario está vacío.";
-        header("Location: ../frontend/login.php");
-        exit();
-    }
-
-    if(empty($password)){
-        $_SESSION["mensaje"] = "La contraseña está vacía.";
-        header("Location: ../frontend/login.php");
-        exit();
-    }
-
-    // Buscar usuario con rol
-    $sql = "SELECT u.*, r.nombre AS rol_nombre
-            FROM usuarios u
-            INNER JOIN roles r ON u.rol_id = r.id
-            WHERE u.username = :username";
-
-    $stmt = $conexion->prepare($sql);
-    $stmt->bindParam(":username", $username);
-    $stmt->execute();
-
-    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if(!$usuario){
-        $_SESSION["mensaje"] = "El usuario no existe.";
-        header("Location: ../frontend/login.php");
-        exit();
-    }
-
-    if($usuario["password"] !== $password){
-        $_SESSION["mensaje"] = "Contraseña incorrecta.";
-        header("Location: ../frontend/login.php");
-        exit();
-    }
-
-    // Login correcto
-    $_SESSION["usuario"] = $usuario["username"];
-    $_SESSION["rol"] = $usuario["rol_nombre"];
-
-    header("Location: ../frontend/dashboard.php");
-    exit();
-}
