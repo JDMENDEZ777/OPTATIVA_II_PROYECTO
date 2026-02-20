@@ -1,0 +1,36 @@
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL UNIQUE
+);
+
+
+--------------------------
+
+
+INSERT INTO roles (nombre) VALUES
+('Administrador'),
+('Estudiante');
+
+
+------------------
+
+
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    rol_id INTEGER REFERENCES roles(id),
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-------------------
+
+
+INSERT INTO usuarios (username, password, rol_id) VALUES
+('admin', '1234', 1),
+('Pepito', 'abcd', 2);
+
+------------------
+
+
