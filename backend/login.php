@@ -1,56 +1,53 @@
 <?php
 session_start();
-?>
+require_once("../database/conexion.php");
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - Plataforma Académica</title>
-    <link rel="stylesheet" href="../frontend/login.css">
-    <link rel="shortcut icon" href="../img/logofet.png" type="image/x-icon">
-</head>
-<body>
+if($_SERVER["REQUEST_METHOD"] == "POST"){
 
-<div class="container">
-    <div class="form-container">
+    $username = trim($_POST["username"]);
+    $password = trim($_POST["password"]);
 
-        <div class="logo">
-            <img src="../img/logofet.png" alt="FET Logo">
-        </div>
 
-        <form action="../backend/login.php" method="POST">
+    if(empty($username)){
+        $_SESSION["mensaje"] = "El usuario está vacío.";
+        header("Location: ../frontend/procesar.php");
+        exit();
+    }
 
-            <?php if(isset($_SESSION['mensaje'])): ?>
-                <div class="message error">
-                    <?php 
-                        echo $_SESSION['mensaje']; 
-                        unset($_SESSION['mensaje']);
-                    ?>
-                </div>
-            <?php endif; ?>
+    if(empty($password)){
+        $_SESSION["mensaje"] = "La contraseña está vacía.";
+        header("Location: ../frontend/procesar.php");
+        exit();
+    }
 
-            <div class="form-group">
-                <label for="username">Usuario</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            
-            <button type="submit" class="register-btn">
-                Iniciar Sesión
-            </button>
+    $sql = "SELECT u.*, r.nombre AS rol_nombre
+            FROM usuarios u
+            INNER JOIN roles r ON u.rol_id = r.id
+            WHERE u.username = :username";
 
-        </form>
-    </div>
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(":username", $username);
+    $stmt->execute();
+
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if(!$usuario){
+        $_SESSION["mensaje"] = "El usuario no existe.";
+        header("Location: ../frontend/procesar.php");
+        exit();
+    }
+
+    if($usuario["password"] !== $password){
+        $_SESSION["mensaje"] = "Contraseña incorrecta.";
+        header("Location: ../frontend/procesar.php");
+        exit();
+    }
+
+    $_SESSION["usuario"] = $usuario["username"];
+    $_SESSION["rol"] = $usuario["rol_nombre"];
     
-    <div class="promo-image">
-        <img src="../img/image.png" alt="Somos Generación FET">
-    </div>
-</div>
-
-</body>
-</html>
+    unset($username, $password);
+    header("Location: ../frontend/dashboard.php");
+  
+    exit();
+}
