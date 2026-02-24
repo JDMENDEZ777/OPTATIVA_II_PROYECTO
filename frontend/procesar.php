@@ -1,5 +1,8 @@
 <?php
 session_start();
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 
 if(isset($_SESSION["usuario"])){
     header("Location: dashboard.php");
@@ -13,6 +16,7 @@ if(isset($_SESSION["usuario"])){
     <meta charset="UTF-8">
     <title>Login - Plataforma Académica</title>
     <link rel="stylesheet" href="login.css">
+    <link rel="shortcut icon" href="../img/logofet.png" type="image/x-icon">
 </head>
 <body>
 
@@ -36,12 +40,26 @@ if(isset($_SESSION["usuario"])){
 
             <div class="form-group">
                 <label for="username">Usuario</label>
-                <input type="text" id="username" name="username" required>
+                <input 
+                    type="text"
+                    id="username"
+                    name="username"
+                    maxlength="30"
+                    pattern="[A-Za-z]{1,30}"
+                    title="Solo letras, máximo 30 caracteres, sin espacios"
+                    required>
             </div>
             
             <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" required>
+                <input 
+                    type="password"
+                    id="password"
+                    name="password"
+                    maxlength="30"
+                    pattern="[A-Za-z0-9]{1,30}"
+                    title="Solo letras y números, máximo 30 caracteres, sin espacios"
+                    required>
             </div>
             
             <button type="submit" class="register-btn">

@@ -1,5 +1,9 @@
 <?php
 session_start();
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 require_once("../database/conexion.php");
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
@@ -7,19 +11,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $username = trim($_POST["username"]);
     $password = trim($_POST["password"]);
 
-
-    if(empty($username)){
-        $_SESSION["mensaje"] = "El usuario está vacío.";
+    // Usuario: solo letras, máximo 30
+    if(!preg_match("/^[A-Za-z]{1,30}$/", $username)){
+        $_SESSION["mensaje"] = "Correo o contraseña incorrecta";
         header("Location: ../frontend/procesar.php");
         exit();
     }
 
-    if(empty($password)){
-        $_SESSION["mensaje"] = "La contraseña está vacía.";
+    // Contraseña: letras y números, máximo 30
+    if(!preg_match("/^[A-Za-z0-9]{1,30}$/", $password)){
+        $_SESSION["mensaje"] = "Correo o contraseña incorrecta";
         header("Location: ../frontend/procesar.php");
         exit();
     }
 
+    // Buscar usuario
     $sql = "SELECT u.*, r.nombre AS rol_nombre
             FROM usuarios u
             INNER JOIN roles r ON u.rol_id = r.id
@@ -31,23 +37,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if(!$usuario){
-        $_SESSION["mensaje"] = "El usuario no existe.";
+    // Validación segura (no revela qué falló)
+    if(!$usuario || $usuario["password"] !== $password){
+        $_SESSION["mensaje"] = "Correo o contraseña incorrecta";
         header("Location: ../frontend/procesar.php");
         exit();
     }
 
-    if($usuario["password"] !== $password){
-        $_SESSION["mensaje"] = "Contraseña incorrecta.";
-        header("Location: ../frontend/procesar.php");
-        exit();
-    }
-
+    // Login correcto
     $_SESSION["usuario"] = $usuario["username"];
     $_SESSION["rol"] = $usuario["rol_nombre"];
-    
-    unset($username, $password);
+
     header("Location: ../frontend/dashboard.php");
-  
     exit();
 }

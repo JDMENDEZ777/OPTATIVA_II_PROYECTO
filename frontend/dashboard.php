@@ -1,5 +1,8 @@
 <?php
 session_start();
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 
 if(!isset($_SESSION["usuario"])){
     header("Location: procesar.php");
@@ -14,8 +17,9 @@ $rol = $_SESSION["rol"];
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Panel - Bienvenido</title>
     <link rel="stylesheet" href="dashboard.css">
+    <link rel="shortcut icon" href="../img/logofet.png" type="image/x-icon">
 </head>
 <body>
 
