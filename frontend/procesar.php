@@ -66,6 +66,10 @@ if(isset($_SESSION["usuario"])){
                 Iniciar Sesión
             </button>
 
+            <div class="forgot-password">
+                 <a href="registro.php">Registrarse</a>
+            </div>
+
         </form>
     </div>
     
