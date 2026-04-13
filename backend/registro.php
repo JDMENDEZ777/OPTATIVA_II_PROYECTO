@@ -37,12 +37,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         exit();
     }
 
-    // 5. Password formato
+   
+
+     // 5. VALIDACIÓN DE CONTRASEÑA 
     if(!preg_match("/^[A-Za-z0-9]{6,30}$/", $password)){
-        $_SESSION["mensaje"] = "Contraseña inválida.";
+        $_SESSION["mensaje"] = "La contraseña debe tener entre 6 y 30 caracteres (solo letras y números).";
         header("Location: ../frontend/registro.php");
         exit();
     }
+
 
     // 6. Coincidencia
     if($password !== $confirmar){
@@ -59,6 +62,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if($stmt->rowCount() > 0){
         $_SESSION["mensaje"] = "El usuario ya existe.";
+        header("Location: ../frontend/registro.php");
+        exit();
+    }
+
+    // 8. VALIDAR EMAIL REPETIDO
+    $sql = "SELECT * FROM usuarios WHERE email = :email";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(":email", $email);
+    $stmt->execute();
+
+    if($stmt->rowCount() > 0){
+        $_SESSION["mensaje"] = "El correo ya está registrado.";
         header("Location: ../frontend/registro.php");
         exit();
     }

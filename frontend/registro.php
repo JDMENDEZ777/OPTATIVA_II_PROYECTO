@@ -47,6 +47,7 @@ session_start();
                 <input type="password" name="password"
                     maxlength="30"
                     pattern="[A-Za-z0-9]{6,30}"
+                    title="Solo letras y números, máximo 30 caracteres, sin espacios"
                     required>
             </div>
 
@@ -55,6 +56,7 @@ session_start();
                 <input type="password" name="confirmar"
                     maxlength="30"
                     pattern="[A-Za-z0-9]{6,30}"
+                    title="Solo letras y números, máximo 30 caracteres, sin espacios"
                     required>
             </div>
 
