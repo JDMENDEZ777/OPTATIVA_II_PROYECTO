@@ -82,7 +82,8 @@ body {
     letter-spacing: 0.5px;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
     width: 100%;
     padding: 12px;
     border: none;
@@ -92,7 +93,8 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
     outline: none;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0, 255, 0, 0.3);

@@ -1,55 +1,17 @@
 <?php
 session_start();
-header("Cache-Control: no-cache, no-store, must-revalidate");
-header("Pragma: no-cache");
-header("Expires: 0");
 
 if(!isset($_SESSION["usuario"])){
     header("Location: procesar.php");
     exit();
 }
 
-$usuario = $_SESSION["usuario"];
-$rol = $_SESSION["rol"];
-?>
+if($_SESSION["rol"] == "Administrador"){
+    header("Location: admin.php");
+} elseif($_SESSION["rol"] == "Docente"){
+    header("Location: docente.php");
+} else {
+    header("Location: estudiante.php");
+}
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Panel - Bienvenido</title>
-    <link rel="stylesheet" href="dashboard.css">
-    <link rel="shortcut icon" href="../img/logofet.png" type="image/x-icon">
-</head>
-<body>
-
-<div class="dashboard-container">
-
-    <div class="dashboard-card">
-
-        <div class="welcome-section">
-            <h1>
-                <?php
-                    if($rol == "Administrador"){
-                        echo "Bienvenido Administrador: " . $usuario;
-                    } else {
-                        echo "Bienvenido Estudiante: " . $usuario;
-                    }
-                ?>
-            </h1>
-
-            <a href="../backend/logout.php" class="logout-btn">
-                Cerrar sesión
-            </a>
-        </div>
-
-        <div class="dashboard-logo">
-            <img src="../img/logofet.png" alt="Logo FET">
-        </div>
-
-    </div>
-
-</div>
-
-</body>
-</html>
+exit();

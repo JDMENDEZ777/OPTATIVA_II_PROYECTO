@@ -5,7 +5,13 @@ header("Pragma: no-cache");
 header("Expires: 0");
 
 if(isset($_SESSION["usuario"])){
-    header("Location: dashboard.php");
+    if($_SESSION["rol"] == "Administrador"){
+        header("Location: admin.php");
+    } elseif($_SESSION["rol"] == "Docente"){
+        header("Location: docente.php");
+    } else {
+        header("Location: estudiante.php");
+    }
     exit();
 }
 ?>

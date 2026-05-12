@@ -6,56 +6,47 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     $username = trim($_POST["username"]);
     $email = trim($_POST["email"]);
+    $rol = trim($_POST["rol"] ?? "");
     $password = trim($_POST["password"]);
     $confirmar = trim($_POST["confirmar"]);
 
-    // 1. Campos vacíos
-    if(empty($username) || empty($email) || empty($password) || empty($confirmar)){
+    if(empty($username) || empty($email) || empty($rol) || empty($password) || empty($confirmar)){
         $_SESSION["mensaje"] = "Todos los campos son obligatorios.";
         header("Location: ../frontend/registro.php");
         exit();
     }
 
-    // 2. Usuario solo letras
     if(!preg_match("/^[A-Za-z]{1,30}$/", $username)){
-        $_SESSION["mensaje"] = "Usuario inválido.";
+        $_SESSION["mensaje"] = "Usuario invalido.";
         header("Location: ../frontend/registro.php");
         exit();
     }
 
-    // 3. Email válido
     if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-        $_SESSION["mensaje"] = "Correo inválido.";
+        $_SESSION["mensaje"] = "Correo invalido.";
         header("Location: ../frontend/registro.php");
         exit();
     }
 
-    // 4. Password mínimo 6
-    if(strlen($password) < 6){
-        $_SESSION["mensaje"] = "La contraseña debe tener mínimo 6 caracteres.";
+    if(!in_array($rol, ["Estudiante", "Docente"])){
+        $_SESSION["mensaje"] = "Rol invalido. No se permite crear administradores desde el registro.";
         header("Location: ../frontend/registro.php");
         exit();
     }
 
-   
-
-     // 5. VALIDACIÓN DE CONTRASEÑA 
     if(!preg_match("/^[A-Za-z0-9]{6,30}$/", $password)){
-        $_SESSION["mensaje"] = "La contraseña debe tener entre 6 y 30 caracteres (solo letras y números).";
+        $_SESSION["mensaje"] = "La contrasena debe tener entre 6 y 30 caracteres, solo letras y numeros.";
         header("Location: ../frontend/registro.php");
         exit();
     }
 
-
-    // 6. Coincidencia
     if($password !== $confirmar){
-        $_SESSION["mensaje"] = "Las contraseñas no coinciden.";
+        $_SESSION["mensaje"] = "Las contrasenas no coinciden.";
         header("Location: ../frontend/registro.php");
         exit();
     }
 
-    // 7. Usuario repetido
-    $sql = "SELECT * FROM usuarios WHERE username = :username";
+    $sql = "SELECT id FROM usuarios WHERE username = :username";
     $stmt = $conexion->prepare($sql);
     $stmt->bindParam(":username", $username);
     $stmt->execute();
@@ -66,26 +57,39 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         exit();
     }
 
-    // 8. VALIDAR EMAIL REPETIDO
-    $sql = "SELECT * FROM usuarios WHERE email = :email";
+    $sql = "SELECT id FROM usuarios WHERE email = :email";
     $stmt = $conexion->prepare($sql);
     $stmt->bindParam(":email", $email);
     $stmt->execute();
 
     if($stmt->rowCount() > 0){
-        $_SESSION["mensaje"] = "El correo ya está registrado.";
+        $_SESSION["mensaje"] = "El correo ya esta registrado.";
         header("Location: ../frontend/registro.php");
         exit();
     }
 
-    // INSERTAR (rol 2 = estudiante)
-    $sql = "INSERT INTO usuarios (username, email, password, rol_id) 
-            VALUES (:username, :email, :password, 2)";
+    $sql = "SELECT id FROM roles WHERE nombre = :rol";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(":rol", $rol);
+    $stmt->execute();
+    $rolId = $stmt->fetchColumn();
+
+    if(!$rolId){
+        $_SESSION["mensaje"] = "El rol seleccionado no existe en la base de datos.";
+        header("Location: ../frontend/registro.php");
+        exit();
+    }
+
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+    $sql = "INSERT INTO usuarios (username, email, password, rol_id)
+            VALUES (:username, :email, :password, :rol_id)";
 
     $stmt = $conexion->prepare($sql);
     $stmt->bindParam(":username", $username);
     $stmt->bindParam(":email", $email);
-    $stmt->bindParam(":password", $password);
+    $stmt->bindParam(":password", $passwordHash);
+    $stmt->bindParam(":rol_id", $rolId, PDO::PARAM_INT);
 
     if($stmt->execute()){
         $_SESSION["mensaje"] = "Registro exitoso.";
